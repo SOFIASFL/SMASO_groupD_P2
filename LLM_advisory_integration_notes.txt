@@ -1,0 +1,65 @@
+**Subject:** Completion of LLM Integration and System Architecture
+
+Here is the breakdown of the work completed for Part 2. The system is now fully operational and ready for your experimental simulations.
+
+
+## Scope and Purpose
+
+This document provides internal technical notes describing the optional integration of an LLM-based analyst into the simulation. It does not represent the conceptual core of the model, which remains a fully decentralized agent-based system and can be executed without any LLM component.
+
+
+
+#### 1. Architecture Overview
+
+I have implemented an external advisory analyst component that supports the simulation. The architecture supports an agent-based model augmented with an optional LLM-based advisory component.
+
+#### 2. Key Implementations (Step-by-Step)
+
+**A. The AI Analyst (`AnalystLLMAgent`)**
+
+* **Integration:** Built a custom agent class that interfaces directly with the **Groq API** to leverage the **Llama-3.3-70b** model. This enables efficient qualitative analysis of market signals.
+* **Prompt Engineering:** Designed a structured prompt system. The agent receives a structured summary of the market state and is instructed to provide qualitative analytical insights.
+* **Structured Output:** Implemented a JSON parsing layer to ensure the LLM outputs strict, machine-readable data:
+* `Action`: BUY, SELL, or HOLD (non-binding recommendation only).
+* `Confidence`: A float value (0.0 to 1.0).
+* `Reasoning`: A text explanation of *why* the decision was made (useful for your qualitative analysis).
+
+
+
+**B. Market Physics (`Environment`)**
+
+* **GBM Dynamics:** Finalized the **Geometric Brownian Motion** logic for the market environment.
+* **Behavior:** The asset price now evolves stochastically based on defined Drift (\mu) and Volatility (\sigma). This provides a stochastic environment for agents and the advisory analyst to interpret, rather than a static linear progression.
+
+**C. Agent-Market Wiring**
+
+* **Signal Propagation:** Established the communication channel between the Analyst and the Investors. The Analyst's output is broadcasted as an informational signal, which investor agents may incorporate into their local heuristic decision process.
+* **Configuration Flexibility:** The Investor agents were updated to handle dynamic configuration arguments (`**kwargs`), allowing us to easily vary agent parameters in your experiments without changing the core code.
+
+**D. Verification System (`run_smoke_test.py`)**
+
+* **System Health Check:** Developed a startup routine that performs an optional connectivity check for the LLM advisory component before the simulation begins.
+* **Validation:** When enabled, the script confirms that the LLM is receiving market data and returning valid Action types before executing the main simulation loop.
+
+#### 3. Setup Instructions for Experiments
+
+To run the simulations for your report, follow these simple steps:
+
+1. **Environment Setup:**
+* Create a `.env` file in the project root.
+* Add the key: `GROQ_API_KEY=your_key_here`.
+* Run: `pip install -r requirements.txt` (or install `mesa`, `openai`, `python-dotenv`, `numpy`).
+
+
+2. **Running the Model:**
+* Execute the main script: `python run_smoke_test.py`.
+* You will see a `[SYSTEM] Verifying LLM connection` message. Once it confirms `[SUCCESS]`, the simulation proceeds.
+
+
+3. **Experimental Variables:**
+* You can now modify the number of steps or the market volatility in `run_smoke_test.py` to generate data for your charts (e.g., "Impact of AI on Market Volatility").
+
+
+
+The system is stable and ready for data collection, independently of the optional LLM advisory component.
+
